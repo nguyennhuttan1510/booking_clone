@@ -16,6 +16,8 @@ import {BsPersonCircle} from "react-icons/bs";
 import {useLayout} from "@/hooks/useLayout";
 import {MdOutlineCreditCardOff} from "react-icons/md";
 import {IoChevronForwardOutline, IoLockClosed, IoRocketOutline} from "react-icons/io5";
+import Link from "next/link";
+import PaymentIntent from "@/lib/stripe-payment/components/PaymentIntent";
 
 const BookingPage = () => {
   const {setState} = useLayout()
@@ -573,6 +575,8 @@ const BookingPage = () => {
                 <div>Thanh toán của bạn sẽ do BAMBOO HOTEL Vung Tau xử lý, nên bạn không cần nhập thông tin thanh toán cho đơn đặt này.</div>
               </Card>
 
+              <PaymentIntent />
+
               <div className='flex flex-col gap-y-2 my-4'>
                 <Checkbox defaultChecked={true}>Tôi đồng ý nhận email marketing từ Booking.com, bao gồm khuyến mãi, đề xuất được cá nhân hóa, tặng thưởng, trải nghiệm du lịch và cập nhật về các sản phẩm và dịch vụ của Booking.com.</Checkbox>
                 <Checkbox defaultChecked={false}>Tôi đồng ý nhận email marketing từ Booking.com, bao gồm khuyến mãi, đề xuất được cá nhân hóa, tặng thưởng, trải nghiệm du lịch và cập nhật về các sản phẩm và dịch vụ của Booking.com Transport Limited.</Checkbox>
@@ -590,12 +594,14 @@ const BookingPage = () => {
                 <Button type='default' style={{padding: '12px 24px', boxSizing: 'initial', height: 'fit-content'}}>
                   <div className='text-md'>Kiểm tra lại đặt phòng</div>
                 </Button>
-                <Button type='primary' style={{padding: '12px 24px', boxSizing: 'initial', height: 'fit-content'}}>
-                  <div>
-                    <IoLockClosed className='text-xl' />
-                  </div>
-                  <div className='text-md'>Đặt với cam kết thanh toán sau</div>
-                </Button>
+                  <Link href='/book/payment-intent'>
+                  <Button type='primary' style={{padding: '12px 24px', boxSizing: 'initial', height: 'fit-content'}}>
+                      <div>
+                        <IoLockClosed className='text-xl' />
+                      </div>
+                      <div className='text-md'>Đặt với cam kết thanh toán sau</div>
+                  </Button>
+                </Link>
               </div>
             </div>
           )}

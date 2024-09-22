@@ -11,7 +11,7 @@ import {clerkMiddleware, createRouteMatcher} from '@clerk/nextjs/server'
 // })
 
 export default clerkMiddleware({
-  secretKey: process.env.NEXT_PUBLIC_CLERK_SECRET_KEY,
+  secretKey: process.env.LERK_SECRET_KEY,
 
 })
 
