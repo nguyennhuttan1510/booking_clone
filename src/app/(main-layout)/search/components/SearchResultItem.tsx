@@ -3,7 +3,7 @@ import Image from "next/image";
 import { FaAngleRight, FaInfo } from "react-icons/fa6";
 
 export type ProductType = {
-
+  productID: number
 }
 
 export type SearchResultItemType = {

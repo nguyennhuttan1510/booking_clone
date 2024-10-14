@@ -18,6 +18,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'ik.imagekit.io',
       },
+      {
+        protocol: 'https',
+        hostname: 'sunbooking.s3.amazonaws.com',
+      },
     ],
   }
 };

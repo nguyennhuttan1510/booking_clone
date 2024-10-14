@@ -1,24 +1,50 @@
 'use client'
 import React, {useEffect, useRef, useState} from 'react';
-import {Button, DatePicker, Input, Switch} from "antd";
+import {Button, DatePicker, Input, Select, SelectProps, Switch} from "antd";
 import useMaskClosable from "@/hooks/useMaskClosable";
 import Dialog from "@/app/components/Dialog";
 import {FaBed, FaRegCalendar, FaRegUser} from "react-icons/fa6";
+import SearchSelect from "@/app/components/SearchBar/SearchSelect";
 
 const {RangePicker} = DatePicker
 
+const fetch = (value: string) => {
+  console.log('value', value)
+};
+
 const SearchBar = () => {
   const [open, setOpen, contentRef ,triggerRef] = useMaskClosable()
+  const [data, setData] = useState<SelectProps['options']>([]);
+  const [value, setValue] = useState<string>();
+
+  const handleSearch = (newValue: string) => {
+    fetch(newValue);
+  };
+
+  const handleChange = (newValue: string) => {
+    setValue(newValue);
+  };
 
   return (
       <div className='flex gap-2 p-1 mb-4 mt-2 w-full h-[66px] bg-yellow-400 rounded-lg'>
         <div className='flex-1'>
-          <Input prefix={<FaBed className='text-gray-400' size={24} />} style={{height: '100%'}} />
+          <SearchSelect
+            prefix={<FaBed className='text-gray-400' size={24} />}
+            placeholder='Bạn muốn đến đâu ?'
+            onSearch={handleSearch}
+            onChange={handleChange}
+            options={(data || []).map((d) => ({
+              value: d.value,
+              label: d.text,
+            }))}
+          />
+
+          {/*<Input prefix={<FaBed className='text-gray-400' size={24} />} style={{height: '100%'}} />*/}
         </div>
         <div className='w-[27%]'>
           <div className='h-full relative'>
             <div className='absolute z-50 top-1/2 -translate-y-1/2 left-3'><FaRegCalendar className='text-gray-400' size={24} /></div>
-            <RangePicker suffixIcon={null} className='w-full' style={{height: '100%', paddingLeft: '60px'}} />
+            <RangePicker suffixIcon={null} className='w-full' style={{height: '100%', paddingLeft: '50px'}} />
           </div>
         </div>
         <div className='w-[27%]'>

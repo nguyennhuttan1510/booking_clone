@@ -52,19 +52,21 @@ const CheckoutForm = ({dpmCheckerLink}) => {
             <form id="payment-form" onSubmit={handleSubmit}>
 
                 <PaymentElement id="payment-element" options={paymentElementOptions} />
-                <Button loading={isLoading} htmlType='submit' type='primary' disabled={isLoading || !stripe || !elements} id="submit">
-                    Pay now
-                </Button>
+                <div className='mt-4 flex justify-end'>
+                  <Button size='large' loading={isLoading} htmlType='submit' type='primary' disabled={isLoading || !stripe || !elements} id="submit">
+                    Thanh toán
+                  </Button>
+                </div>
                 {/* Show any error or success messages */}
                 {message && <div id="payment-message">{message}</div>}
             </form>
             {/* [DEV]: For demo purposes only, display dynamic payment methods annotation and integration checker */}
-            <div id="dpm-annotation">
-                <p>
-                    Payment methods are dynamically displayed based on customer location, order amount, and currency.&nbsp;
-                    <a href={dpmCheckerLink} target="_blank" rel="noopener noreferrer" id="dpm-integration-checker">Preview payment methods by transaction</a>
-                </p>
-            </div>
+            {/*<div id="dpm-annotation">*/}
+            {/*    <p>*/}
+            {/*        Payment methods are dynamically displayed based on customer location, order amount, and currency.&nbsp;*/}
+            {/*        <a href={dpmCheckerLink} target="_blank" rel="noopener noreferrer" id="dpm-integration-checker">Preview payment methods by transaction</a>*/}
+            {/*    </p>*/}
+            {/*</div>*/}
         </>
     );
 };

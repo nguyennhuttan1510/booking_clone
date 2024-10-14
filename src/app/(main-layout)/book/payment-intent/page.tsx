@@ -1,13 +1,11 @@
 'use client'
-import React, {useLayoutEffect} from 'react';
+import React from 'react';
 import {loadStripe, StripeElementsOptions} from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CompletePage from "@/app/(main-layout)/book/payment-intent/components/CompletePage";
 import CheckoutForm from "@/app/(main-layout)/book/payment-intent/components/CheckoutForm";
-import {useLayout} from "@/hooks/useLayout";
 
 const PaymentIntent = () => {
-  const {setState} = useLayout()
   const [clientSecret, setClientSecret] = React.useState("");
   const [dpmCheckerLink, setDpmCheckerLink] = React.useState("");
   const [confirmed, setConfirmed] = React.useState<null | boolean>(null);
@@ -47,10 +45,6 @@ const PaymentIntent = () => {
     clientSecret,
     appearance,
   };
-
-  useLayoutEffect(() => {
-    setState((prevState) => ({...prevState, isSearch: false, isMenu: false}))
-  }, [])
 
   return (
       <div>

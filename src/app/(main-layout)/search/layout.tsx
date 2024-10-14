@@ -5,7 +5,11 @@ import Footer from "@/app/components/layouts/Footer";
 const SearchLayout = ({children}: {children: React.ReactNode}) => {
   return (
     <>
-      {children}
+      <Header isSearchTool={true} isShowMenu={true} />
+      <div className='container w-3/4 mx-auto relative pt-14'>
+        {children}
+      </div>
+      <Footer />
     </>
   );
 };

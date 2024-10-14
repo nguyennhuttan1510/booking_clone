@@ -1,3 +1,4 @@
+'use client'
 import React from 'react';
 import Image from "next/image";
 import CardProduct from "@/app/(main-layout)/home/components/CardProduct";
@@ -151,7 +152,7 @@ const promotionWeekend = [
 const HomePage = () => {
   return (
     <main>
-      <div className='container mx-auto w-3/4'>
+      <div>
         <section className='mt-8 mb-6'>
           <div className='text-black font-bold text-2xl mb-4'>Tìm theo loại chổ nghỉ</div>
           <div className='flex gap-4'>

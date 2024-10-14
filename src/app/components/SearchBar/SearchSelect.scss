@@ -1,0 +1,9 @@
+#search-select {
+  $paddingLeft: 50px;
+  .ant-select-selector {
+    padding-left: $paddingLeft;
+    .ant-select-selection-search-input {
+      padding-left: calc($paddingLeft - 11px);
+    }
+  }
+}

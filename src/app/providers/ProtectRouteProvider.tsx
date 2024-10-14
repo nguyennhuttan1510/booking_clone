@@ -1,20 +1,16 @@
-import React from 'react';
-import {useAuth} from "@clerk/nextjs";
-import {useRouter} from "next/navigation";
+'use client';
+import React, {useEffect} from 'react';
+import useAuthentication from "@/hooks/useAuthentication";
 
 const ProtectRouteProvider = ({children}:{children: React.ReactNode}) => {
-  const {isSignedIn, isLoaded} = useAuth()
-  console.log('isSignedIn', isSignedIn)
-  console.log('isLoaded', isLoaded)
-  const router = useRouter()
+  const { checkToken, isSignIn } = useAuthentication()
 
-  if(!isLoaded) {
+  useEffect(() => {
+    checkToken()
+  }, [])
+
+  if(!isSignIn) {
     return null
-  }
-
-  if(!isSignedIn) {
-    router.push('/signin')
-    return
   }
 
   return (

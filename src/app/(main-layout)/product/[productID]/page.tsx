@@ -1,5 +1,5 @@
 'use client';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import { useRouter } from 'next/navigation';
 import {Button, Card, Carousel, Col, Divider, Drawer, Flex, Modal, Progress, Row, Tag, Typography} from 'antd';
 import {
@@ -31,6 +31,15 @@ import Slider from "@ant-design/react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import {MdOutlinePets} from "react-icons/md";
+import {useQuery} from "@tanstack/react-query";
+import ProductAPI from "@/lib/http/apis/products";
+import {TYPE_CONVENIENCE} from "@/lib/http/apis/products.d";
+import {BOUNDARY_REVIEW_POINT, CONVENIENCE} from "@/app/(main-layout)/product/constants";
+import {FormatHelper} from "@/utils/formatString";
+import {Utils} from "@/utils";
+import MetadataAPI from "@/lib/http/apis/metadata";
+import QuestionsDrawer from "@/app/(main-layout)/product/[productID]/components/QuestionsDrawer";
+import ReviewsDrawer from "@/app/(main-layout)/product/[productID]/components/ReviewsDrawer";
 
 const { Title, Paragraph } = Typography;
 
@@ -322,60 +331,116 @@ const settingsSlider = {
   slidesToScroll: 1,
 };
 
-const ProductDetailPage = () => {
-  const [openDrawer, setOpenDrawer] = useState(false)
+const ProductDetailPage = ({params}:{params: {productID: string}}) => {
+  const [openQuestion, setOpenQuestion] = useState(false)
+  const [openReview, setOpenReview] = useState(false)
   const router = useRouter();
-  const onCloseDrawer = () => {
-    setOpenDrawer(false)
+  const productID = params.productID
+
+  const organizationQuery = useQuery({
+    retry: false,
+    queryKey: ['organization', productID],
+    queryFn: async () => {
+      return await ProductAPI.getOrganization(productID).then(res => res.data.data)
+    }
+  })
+
+  const rankReviewQuery = useQuery({
+    retry: false,
+    queryKey: ['categoryReview'],
+    queryFn: async () => {
+      return await MetadataAPI.getMetadata('CATEGORY_REVIEW').then(res => res.data?.data)
+    }
+  })
+
+  const onCloseDrawer = (setDrawer: React.Dispatch<React.SetStateAction<boolean>>) => {
+    setDrawer(false)
   }
 
-  const images: RecordType[] = [
-    {
-      spanCol: 3,
-      spanRow: 3,
-      width: '100%',
-      height: '100%',
-      data: 'https://ik.imagekit.io/tvlk/apr-asset/Ixf4aptF5N2Qdfmh4fGGYhTN2  74kJXuNMkUAzpL5HuD9jzSxIGG5kZNhhHY-p7nw/hotel/asset/67870160-b2018c22565014dcd24421424157c61a.jpeg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
-    },
-    {
-      width: '100%',
-      height: '120px',
-      data: 'https://ik.imagekit.io/tvlk/apr-asset/Ixf4aptF5N2Qdfmh4fGGYhTN274kJXuNMkUAzpL5HuD9jzSxIGG5kZNhhHY-p7nw/hotel/asset/67870160-c9461fa715f247b0a3375bd8ba112d39.jpeg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
-    },
-    {
-      width: '100%',
-      height: '120px',
-      data: 'https://ik.imagekit.io/tvlk/apr-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/20011770-8edf3caa310bfe8644baf32ac8a95e46.jpeg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
-    },
-    {
-      width: '100%',
-      height: '120px',
-      data: 'https://ik.imagekit.io/tvlk/apr-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/20011770-65ed7088edb5a27ea3c549d9f50e1663.jpeg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
-    },
-    {
-      width: '100%',
-      height: '120px',
-      data: 'https://ik.imagekit.io/tvlk/apr-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/20011770-76da33ac4a4d1e377f606253e67c93c6.jpeg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
-    },
-    {
-      width: '100%',
-      height: '120px',
-      data: 'https://ik.imagekit.io/tvlk/generic-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/20011770-79bc799e01a2ed2cbaa8be68f5d523fd.jpeg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
-    },
-    {
-      width: '100%',
-      height: '120px',
-      data: 'https://ik.imagekit.io/tvlk/generic-asset/oJLNzNs71wS3RVcWVniLgofXtaluprJ7ristt-jspoM=/images//1mc0t12000d5emrj3B5D6_R_1080_808_R5_Mtrip.jpg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
-    },
-    {
-      width: '100%',
-      height: '120px',
-      data: 'https://ik.imagekit.io/tvlk/apr-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/20011770-96fdc30e525f75f478d6cf9977234d70.jpeg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
-    },
-  ];
+  const images = useMemo(() => {
+    return Array.isArray(organizationQuery?.data?.resource) ? organizationQuery.data.resource.map((item, key) => {
+      if(key === 0) {
+        return {
+          spanCol: 3,
+          spanRow: 3,
+          width: '100%',
+          height: '100%',
+          data: item.file,
+        }
+      }
+      return {
+        width: '100%',
+        height: '120px',
+        data: item.file,
+      }
+    }) : []
+  }, [organizationQuery?.data])
+
+  // const images: RecordType[] = [
+  //   {
+  //     spanCol: 3,
+  //     spanRow: 3,
+  //     width: '100%',
+  //     height: '100%',
+  //     data: 'https://ik.imagekit.io/tvlk/apr-asset/Ixf4aptF5N2Qdfmh4fGGYhTN2  74kJXuNMkUAzpL5HuD9jzSxIGG5kZNhhHY-p7nw/hotel/asset/67870160-b2018c22565014dcd24421424157c61a.jpeg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
+  //   },
+  //   {
+  //     width: '100%',
+  //     height: '120px',
+  //     data: 'https://ik.imagekit.io/tvlk/apr-asset/Ixf4aptF5N2Qdfmh4fGGYhTN274kJXuNMkUAzpL5HuD9jzSxIGG5kZNhhHY-p7nw/hotel/asset/67870160-c9461fa715f247b0a3375bd8ba112d39.jpeg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
+  //   },
+  //   {
+  //     width: '100%',
+  //     height: '120px',
+  //     data: 'https://ik.imagekit.io/tvlk/apr-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/20011770-8edf3caa310bfe8644baf32ac8a95e46.jpeg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
+  //   },
+  //   {
+  //     width: '100%',
+  //     height: '120px',
+  //     data: 'https://ik.imagekit.io/tvlk/apr-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/20011770-65ed7088edb5a27ea3c549d9f50e1663.jpeg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
+  //   },
+  //   {
+  //     width: '100%',
+  //     height: '120px',
+  //     data: 'https://ik.imagekit.io/tvlk/apr-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/20011770-76da33ac4a4d1e377f606253e67c93c6.jpeg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
+  //   },
+  //   {
+  //     width: '100%',
+  //     height: '120px',
+  //     data: 'https://ik.imagekit.io/tvlk/generic-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/20011770-79bc799e01a2ed2cbaa8be68f5d523fd.jpeg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
+  //   },
+  //   {
+  //     width: '100%',
+  //     height: '120px',
+  //     data: 'https://ik.imagekit.io/tvlk/generic-asset/oJLNzNs71wS3RVcWVniLgofXtaluprJ7ristt-jspoM=/images//1mc0t12000d5emrj3B5D6_R_1080_808_R5_Mtrip.jpg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
+  //   },
+  //   {
+  //     width: '100%',
+  //     height: '120px',
+  //     data: 'https://ik.imagekit.io/tvlk/apr-asset/dgXfoyh24ryQLRcGq00cIdKHRmotrWLNlvG-TxlcLxGkiDwaUSggleJNPRgIHCX6/hotel/asset/20011770-96fdc30e525f75f478d6cf9977234d70.jpeg?_src=imagekit&tr=c-at_max,f-jpg,h-360,pr-true,q-100,w-640',
+  //   },
+  // ];
+
+  const organization = organizationQuery.data
+
+  const getConveniencesByType = (type: TYPE_CONVENIENCE) => {
+    const _conveniences = organizationQuery.data?.conveniences
+    const conveniencesByType = Array.isArray(_conveniences) ? _conveniences.filter((typeEquipment,  key) => typeEquipment.type === type) : []
+    return conveniencesByType.map(item => {
+      return {...item, Icon: CONVENIENCE[item.code]?.icon}
+    })
+  }
+
+  const equipments = useMemo(() => {
+    return getConveniencesByType(TYPE_CONVENIENCE.EQUIPMENT)
+  }, [organizationQuery.data])
+
+  const conveniences = useMemo(() => {
+    return getConveniencesByType(TYPE_CONVENIENCE.CONVENIENCE)
+  }, [organizationQuery.data])
 
   return (
-    <div className='container mx-auto w-3/4 mt-14'>
+    <div>
       {/*<SearchBar />*/}
       <Row gutter={18} style={{ minHeight: '80vh' }}>
         <Col md={14}>
@@ -390,9 +455,7 @@ const ProductDetailPage = () => {
                 <Button type={'link'}>xem thêm</Button>
               </Flex>
               <Paragraph>
-                Seashore Hotel & Apartment toạ lạc tại khu vực / thành phố Mân Thái. Quầy tiếp tân 24
-                giờ luôn sẵn sàng phục vụ quý khách từ thủ tục nhận phòng đến trả phòng hay bất kỳ yêu
-                cầu nào. Nếu cần giúp đỡ
+                {organization?.description}
               </Paragraph>
             </Card>
           </Flex>
@@ -405,26 +468,22 @@ const ProductDetailPage = () => {
           <Row>
             <Col md={16}>
               <Title style={{ marginBottom: 0 }} level={2}>
-                Room 003
+                {organization?.name}
               </Title>
-              <Paragraph style={{ marginBottom: 8, marginTop: 0 }}>Goldient Boutique Hotel</Paragraph>
+              <Paragraph style={{ marginBottom: 8, marginTop: 0 }}>{organization?.sub_name}</Paragraph>
               <Flex align={'center'} style={{ marginBottom: 8 }}>
                 <Tag color={'blue'} key={'1'}>
-                  Hotel
+                  {organization?.type}
                 </Tag>
                 <Flex align={'center'}>
-                  <FaStar className={'text-yellow-400'} />
-                  <FaStar className={'text-yellow-400'} />
-                  <FaStar className={'text-yellow-400'} />
-                  <FaStar className={'text-yellow-400'} />
+                  {FormatHelper.rating(organization?.rate, (i) => <FaStar key={i} className={'text-yellow-400'} />)}
                 </Flex>
               </Flex>
 
               <Flex gap={12} align={'baseline'}>
                 <EnvironmentOutlined />
                 <Paragraph style={{ marginBottom: 0 }}>
-                  26 To Hien Thanh Street, 3 Ward, Dalat city, Lam Dong Province, Phường 3, Đà Lạt,
-                  Tỉnh Lâm Đồng, Việt Nam, 670000
+                  <span className='capitalize'>{organization?.location.full_address}</span>
                 </Paragraph>
               </Flex>
             </Col>
@@ -452,34 +511,15 @@ const ProductDetailPage = () => {
                 </Flex>
 
                 <Flex gap={16} vertical>
-                  <Flex gap={18} align="center">
-                    <div>x3</div>
-                    <Flex gap={4} align="center">
-                      <FaWifi />
-                      <div>Sức chứa</div>
+                  {equipments.map(({Icon, ...equipment}, key) => (
+                    <Flex key={equipment.id} gap={18} align="center">
+                      <div>x{organization?.capacity}</div>
+                      <Flex gap={4} align="center">
+                        {Icon && <Icon />}
+                        <div>{equipment.name}</div>
+                      </Flex>
                     </Flex>
-                  </Flex>
-                  <Flex gap={18} align="center">
-                    <div>x1</div>
-                    <Flex gap={4} align="center">
-                      <FaShower />
-                      <div>Giường đôi</div>
-                    </Flex>
-                  </Flex>
-                  <Flex gap={18} align="center">
-                    <div>x1</div>
-                    <Flex gap={4} align="center">
-                      <FaWifi />
-                      <div>Nệm Futon</div>
-                    </Flex>
-                  </Flex>
-                  <Flex gap={18} align="center">
-                    <div>x2</div>
-                    <Flex gap={4} align="center">
-                      <FaWifi />
-                      <div>Dụng cụ vệ sinh cá nhân</div>
-                    </Flex>
-                  </Flex>
+                  ))}
                 </Flex>
               </Card>
             </Col>
@@ -493,30 +533,12 @@ const ProductDetailPage = () => {
                   <Button type={'link'}>xem thêm</Button>
                 </Flex>
                 <Flex wrap gap={16}>
-                  <Flex gap={12} align="center">
-                    <FaShower />
-                    <div>Vòi Tắm</div>
-                  </Flex>
-                  <Flex gap={12} align="center">
-                    <FaWifi />
-                    <div>Wifi</div>
-                  </Flex>
-                  <Flex gap={12} align="center">
-                    <FaTemperatureHalf />
-                    <div>Điều hòa</div>
-                  </Flex>
-                  <Flex gap={12} align="center">
-                    <FaToiletPortable />
-                    <div>Toilet riêng</div>
-                  </Flex>
-                  <Flex gap={12} align="center">
-                    <FaVolumeXmark />
-                    <div>Cách âm</div>
-                  </Flex>
-                  <Flex gap={12} align="center">
-                    <FaSmoking />
-                    <div>Khu vực hút thuốc</div>
-                  </Flex>
+                  {conveniences.map(({Icon, ...convenience}, key) => (
+                    <Flex key={convenience.id} gap={12} align="center">
+                      {Icon && <Icon />}
+                      <div>{convenience.name}</div>
+                    </Flex>
+                  ))}
                 </Flex>
               </Card>
             </Col>
@@ -602,24 +624,24 @@ const ProductDetailPage = () => {
           </div>
 
           <div className='mt-4 mb-6 flex items-center gap-2'>
-            <div className='w-fit h-fit p-1 text-lg font-bold text-white rounded-lg rounded-bl-none bg-blue-600'>8,6</div>
-            <div className='text-[16px]'><span className='font-bold'>Tốt</span> <span className='text-gray-500'>583 đánh giá</span></div>
-            <Link href='/'>
-              <div className='text-[16px]'>Đọc tất cả đánh giá</div>
-            </Link>
+            <div className='w-8 h-8 flex justify-center items-center text-[16px] font-medium text-white rounded-md rounded-bl-none bg-blue-600'>{organization?.evaluation.point}</div>
+            <div className='text-[14px]'><span className='font-bold'>{organization?.evaluation.rank_name}</span> - <span className='text-gray-500 font-medium'>{organization?.evaluation.count} đánh giá</span></div>
+            <Button color="default" variant="link" onClick={() => {setOpenReview(true)}}>
+              <div className='text-[14px]'>Đọc tất cả đánh giá</div>
+            </Button>
           </div>
-          <div className='text-[16px] font-bold py-4'>Hạng mục</div>
+          <div className='text-[16px] font-bold py-3'>Hạng mục</div>
           <div className='flex flex-wrap -mx-3'>
-            {Array.isArray(evaluationsMockup) && evaluationsMockup.length > 0 && evaluationsMockup.map((evaluation, key) => (
+            {Array.isArray(organization?.evaluation.evaluation_overview) && organization?.evaluation.evaluation_overview.length > 0 && organization?.evaluation.evaluation_overview.map((evaluation, key) => (
               <div key={key} className='w-full p-3 md:w-1/3'>
                 <div className='flex justify-between text-sm font-medium'>
                   <div className='flex items-center gap-2'>
-                    <div>{evaluation.title}</div>
-                    {evaluation.percent < 70 && <div><IoArrowDown className='text-red-500' /></div> }
+                    <div>{evaluation.display_name}</div>
+                    {evaluation.point < BOUNDARY_REVIEW_POINT && <div><IoArrowDown className='text-red-500' /></div> }
                   </div>
-                  <div>{evaluation.value}</div>
+                  <div>{evaluation.point}</div>
                 </div>
-                <Progress percent={evaluation.percent} showInfo={false} status={evaluation.percent < 70 ? 'exception' : 'normal'} />
+                <Progress percent={Utils.convertToPercent(evaluation.point, 10)} showInfo={false} status={evaluation.point < BOUNDARY_REVIEW_POINT ? 'exception' : 'normal'} />
               </div>
             ))}
           </div>
@@ -692,7 +714,7 @@ const ProductDetailPage = () => {
             <div className='flex-1'>
               <Card styles={{ body: { padding: '16px' } }}>
                 {question.map((item, key: number) => (
-                  <div key={key} onClick={() => {setOpenDrawer(true)}} className='cursor-pointer flex items-center gap-x-4 border-b border-[#f0f0f0] py-4 first:pt-0 last:pb-0 last:border-b-0'>
+                  <div key={key} onClick={() => {setOpenQuestion(true)}} className='cursor-pointer flex items-center gap-x-4 border-b border-[#f0f0f0] py-4 first:pt-0 last:pb-0 last:border-b-0'>
                     <IoChatbubblesOutline className='text-2xl' />
                     <div>{item.title}</div>
                     <IoChevronForwardOutline className='text-xl ml-auto' />
@@ -703,7 +725,7 @@ const ProductDetailPage = () => {
             <div className='flex-1'>
               <Card styles={{ body: { padding: '16px' } }}>
                 {question.map((item, key: number) => (
-                  <div key={key} onClick={() => {setOpenDrawer(true)}} className='cursor-pointer flex items-center gap-x-4 border-b border-[#f0f0f0] py-4 first:pt-0 last:pb-0 last:border-b-0'>
+                  <div key={key} onClick={() => {setOpenQuestion(true)}} className='cursor-pointer flex items-center gap-x-4 border-b border-[#f0f0f0] py-4 first:pt-0 last:pb-0 last:border-b-0'>
                     <IoChatbubblesOutline className='text-2xl' />
                     <div>{item.title}</div>
                     <IoChevronForwardOutline className='text-xl ml-auto' />
@@ -778,71 +800,8 @@ const ProductDetailPage = () => {
           </div>
         </Col>
       </Row>
-      <Drawer
-        closeIcon={null}
-        styles={{
-          content: {
-            borderRadius: '16px'
-          },
-        }}
-        title={
-          <div>
-            <div className='text-xl'>Câu hỏi của bạn</div>
-            <div className='text-md text-[#595959]'><span className='font-bold'>Về:</span> Hai Yen Hotel</div>
-          </div>
-        }
-        onClose={onCloseDrawer}
-        open={openDrawer}
-      >
-        <div className='flex flex-col gap-4'>
-          <div className='border-b border-gray-300 last:border-b-0 pb-4'>
-            <div className='flex items-center gap-x-4 pb-4'>
-              <IoChatbubblesOutline className='text-2xl' />
-              <div>Chỗ nghỉ có chỗ đỗ xe không?</div>
-            </div>
-            <div className='p-4 bg-gray-100 rounded-lg'>
-              <div className='flex flex-col gap-2'>
-                <div className='text-[#595959] text-[12px]'>ngày 28 tháng 7 năm 2022</div>
-                <p>
-                  Đây là thông tin của Hai Yen Hotel về chỗ đậu xe:
-                  Có chỗ đỗ xe riêng miễn phí tại chỗ (cần đặt chỗ trước).
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className='border-b border-gray-300 last:border-b-0 pb-4'>
-            <div className='flex items-center gap-x-4 pb-4'>
-              <IoChatbubblesOutline className='text-2xl' />
-              <div>Chỗ nghỉ có chỗ đỗ xe không?</div>
-            </div>
-            <div className='p-4 bg-gray-100 rounded-lg'>
-              <div className='flex flex-col gap-2'>
-                <div className='text-[#595959] text-[12px]'>ngày 28 tháng 7 năm 2022</div>
-                <p>
-                  Đây là thông tin của Hai Yen Hotel về chỗ đậu xe:
-                  Có chỗ đỗ xe riêng miễn phí tại chỗ (cần đặt chỗ trước).
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className='border-b border-gray-300 last:border-b-0 pb-4'>
-            <div className='flex items-center gap-x-4 pb-4'>
-              <IoChatbubblesOutline className='text-2xl' />
-              <div>Chỗ nghỉ có chỗ đỗ xe không?</div>
-            </div>
-            <div className='p-4 bg-gray-100 rounded-lg'>
-              <div className='flex flex-col gap-2'>
-                <div className='text-[#595959] text-[12px]'>ngày 28 tháng 7 năm 2022</div>
-                <p>
-                  Đây là thông tin của Hai Yen Hotel về chỗ đậu xe:
-                  Có chỗ đỗ xe riêng miễn phí tại chỗ (cần đặt chỗ trước).
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </Drawer>
+      <QuestionsDrawer open={openQuestion}  onClose={() => onCloseDrawer(setOpenQuestion)}/>
+      <ReviewsDrawer open={openReview}  onClose={() => onCloseDrawer(setOpenReview)}/>
     </div>
   );
 };

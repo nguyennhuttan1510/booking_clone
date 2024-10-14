@@ -7,6 +7,11 @@ const formatCurrency = (currency: number) => {
   }).format(currency)
 }
 
+const convertToPercent = (num: number = 0, total: number = 100) => {
+  if(typeof num !== "number" || typeof total !== "number") return 0
+  return num / total * 100
+}
+
 const PROPERTIES_MAPPING = {
   "1": {
     Icon: TbRulerMeasure
@@ -28,6 +33,7 @@ export type ChooseMappingType = keyof typeof CHOOSE_MAPPING
 
 export const Utils = {
   formatCurrency,
+  convertToPercent,
   PROPERTIES_MAPPING,
   CHOOSE_MAPPING
 }

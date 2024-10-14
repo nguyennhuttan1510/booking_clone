@@ -71,44 +71,55 @@ const STATUS_CONTENT_MAP = {
 };
 const CompletePage = () => {
   // const stripe = useStripe();
-  const [stripe, setStripe] = useState<Stripe | null>(null)
   const [status, setStatus] = React.useState<keyof typeof STATUS_CONTENT_MAP>("default");
   const [intentId, setIntentId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    const init = async () => {
-      // const stripe = await getStripe
-      if (!stripe) {
-        return;
-      }
+    // const stripe = await getStripe
+    // if (!stripe) {
+    //   return;
+    // }
 
-      const clientSecret = new URLSearchParams(window.location.search).get(
-          "payment_intent_client_secret"
-      );
+    const clientSecret = new URLSearchParams(window.location.search).get(
+      "payment_intent_client_secret"
+    );
 
-      if (!clientSecret) {
-        return;
-      }
+    console.log('clientSecret', clientSecret)
 
-      stripe?.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
-        if (!paymentIntent) {
-          return;
-        }
-
-        setStatus(paymentIntent.status);
-        setIntentId(paymentIntent.id);
-      });
+    if (!clientSecret) {
+      return;
     }
-    init()
-  }, [stripe]);
 
-  useEffect(() => {
-    const init = async () => {
-      const stripe = await getStripe
-      setStripe(stripe)
+    const retrievePaymentIntent = () => {
+      return fetch(`/api/create-payment-intent?payment_intent_client_secret=${clientSecret}`, {
+        method: 'GET'
+      })
     }
-    init()
-  }, [])
+
+    console.log('retrievePaymentIntent', retrievePaymentIntent)
+
+    if(!retrievePaymentIntent) return
+
+    setStatus(retrievePaymentIntent.status)
+    setIntentId(retrievePaymentIntent.id);
+
+    // stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
+    //   if (!paymentIntent) {
+    //     return;
+    //   }
+    //
+    //   setStatus(paymentIntent.status);
+    //   setIntentId(paymentIntent.id);
+    // });
+  }, []);
+
+  // useEffect(() => {
+  //   const init = async () => {
+  //     const stripe = await getStripe
+  //     setStripe(stripe)
+  //   }
+  //   init()
+  // }, [])
 
   return (
       <div id="payment-status">

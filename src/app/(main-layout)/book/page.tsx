@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useContext, useLayoutEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Button, Card, Checkbox, Flex, Form, Input, Radio, Select, Space, Steps, Tag, Tooltip} from "antd";
 import {FaStar} from "react-icons/fa6";
 import {
@@ -18,10 +18,11 @@ import {MdOutlineCreditCardOff} from "react-icons/md";
 import {IoChevronForwardOutline, IoLockClosed, IoRocketOutline} from "react-icons/io5";
 import Link from "next/link";
 import PaymentIntent from "@/lib/stripe-payment/components/PaymentIntent";
+import classNames from "classnames";
 
 const BookingPage = () => {
-  const {setState} = useLayout()
   const [currentStep, setCurrentStep] = useState<number>(1)
+  const [paymentMethod, setPaymentMethod] = useState<number>(0)
 
   const bookConfirm = <div className='p-3 text-black'>
     <div className='mb-2 text-xl font-bold'>BAMBOO HOTEL Vung Tau</div>
@@ -49,12 +50,8 @@ const BookingPage = () => {
     </div>
   </div>
 
-  useLayoutEffect(() => {
-    setState((prevState) => ({...prevState, isSearch: false, isMenu: false}))
-  }, [])
-
   return (
-    <div className='container mx-auto w-3/4'>
+    <div>
       <div className='my-6'>
         <Steps
           size="small"
@@ -282,7 +279,7 @@ const BookingPage = () => {
           </div>
         </div>
 
-        <div className='w-full md:w-2/3 px-2'>
+        <div className='w-full md:w-2/3 px-2' id='right'>
           {currentStep === 1 && (
             <div className='flex flex-col gap-y-4'>
 
@@ -553,7 +550,7 @@ const BookingPage = () => {
               <div className='flex justify-end'>
                 <Tooltip placement="topRight" color='white' overlayInnerStyle={{width: '130%'}} title={bookConfirm} >
                   <Button onClick={() => {setCurrentStep(2)}} type='primary' style={{padding: '12px 24px', boxSizing: 'initial', height: 'fit-content'}}>
-                    <div className='text-md'>Tiếp theo: Chi tiết cuối cùng</div>
+                    <a href='#right' className='text-md'>Tiếp theo: Chi tiết cuối cùng</a>
                     <div>
                       <IoChevronForwardOutline className='text-xl' />
                     </div>
@@ -564,44 +561,62 @@ const BookingPage = () => {
           )}
 
           {currentStep === 2 && (
-            <div className='flex flex-col gap-y-4'>
-              <Card
-                styles={{
-                  body: {
-                    padding: '16px'
-                  }
-                }}>
-                <div className='text-xl font-bold mb-4'>Không yêu cầu thông tin thanh toán</div>
-                <div>Thanh toán của bạn sẽ do BAMBOO HOTEL Vung Tau xử lý, nên bạn không cần nhập thông tin thanh toán cho đơn đặt này.</div>
-              </Card>
-
-              <PaymentIntent />
-
-              <div className='flex flex-col gap-y-2 my-4'>
-                <Checkbox defaultChecked={true}>Tôi đồng ý nhận email marketing từ Booking.com, bao gồm khuyến mãi, đề xuất được cá nhân hóa, tặng thưởng, trải nghiệm du lịch và cập nhật về các sản phẩm và dịch vụ của Booking.com.</Checkbox>
-                <Checkbox defaultChecked={false}>Tôi đồng ý nhận email marketing từ Booking.com, bao gồm khuyến mãi, đề xuất được cá nhân hóa, tặng thưởng, trải nghiệm du lịch và cập nhật về các sản phẩm và dịch vụ của Booking.com Transport Limited.</Checkbox>
+            <div>
+              <div>
+                <div className='text-[16px] font-bold mb-4'>Phương thức thanh toán</div>
+                <div className='flex gap-x-4'>
+                  <div onClick={() => {setPaymentMethod(0)}} className={classNames('border border-gray-200 text-sm cursor-pointer rounded-md p-3', {'border-blue-500 text-blue-500': paymentMethod === 0})}>
+                    Credit card (thẻ tín dụng)
+                  </div>
+                  <div onClick={() => {setPaymentMethod(1)}} className={classNames('border border-gray-200 text-sm cursor-pointer rounded-md p-3', {'border-blue-500 text-blue-500': paymentMethod === 1})}>
+                    Thanh toán khi đến nơi
+                  </div>
+                </div>
               </div>
 
-              <div className='text-[12px]'>
-                Với việc đăng kí nhận email marketing, bạn cho phép chúng tôi đề xuất các sản phẩm, dịch vụ, ưu đãi và nội dung theo sở thích của mình bằng việc theo dõi cách bạn sử dụng Booking.com thông qua công nghệ theo dõi. Hủy đăng kí bất cứ lúc nào. Tham khảo <span className='underline text-blue-500'>chính sách bảo mật</span> của chúng tôi.
+              <hr className='my-4' />
+
+              <div id='credit-card' style={{display: paymentMethod === 0 ? 'block' : 'none'}}>
+                <PaymentIntent />
               </div>
 
-              <div className='text-sm mb-6'>
-                Đặt phòng của bạn là đặt phòng trực tiếp với BAMBOO HOTEL Vung Tau và bằng việc hoàn tất đặt phòng này, bạn đồng ý với <span className='underline text-blue-500'>điều kiện đặt phòng</span>, <span className='underline text-blue-500'>điều khoản chung</span> và <span className='underline text-blue-500'>chính sách bảo mật</span>.
-              </div>
+              <div id='payment-later' className='flex flex-col gap-y-4' style={{display: paymentMethod === 1 ? 'block': 'none'}}>
+                <Card
+                  styles={{
+                    body: {
+                      padding: '16px'
+                    }
+                  }}>
+                  <div className='text-xl font-bold mb-4'>Không yêu cầu thông tin thanh toán</div>
+                  <div>Thanh toán của bạn sẽ do BAMBOO HOTEL Vung Tau xử lý, nên bạn không cần nhập thông tin thanh toán cho đơn đặt này.</div>
+                </Card>
 
-              <div className='flex justify-end gap-x-2'>
-                <Button type='default' style={{padding: '12px 24px', boxSizing: 'initial', height: 'fit-content'}}>
-                  <div className='text-md'>Kiểm tra lại đặt phòng</div>
-                </Button>
+                <div className='flex flex-col gap-y-2 my-4'>
+                  <Checkbox defaultChecked={true}>Tôi đồng ý nhận email marketing từ Booking.com, bao gồm khuyến mãi, đề xuất được cá nhân hóa, tặng thưởng, trải nghiệm du lịch và cập nhật về các sản phẩm và dịch vụ của Booking.com.</Checkbox>
+                  <Checkbox defaultChecked={false}>Tôi đồng ý nhận email marketing từ Booking.com, bao gồm khuyến mãi, đề xuất được cá nhân hóa, tặng thưởng, trải nghiệm du lịch và cập nhật về các sản phẩm và dịch vụ của Booking.com Transport Limited.</Checkbox>
+                </div>
+
+                <div className='text-[12px]'>
+                  Với việc đăng kí nhận email marketing, bạn cho phép chúng tôi đề xuất các sản phẩm, dịch vụ, ưu đãi và nội dung theo sở thích của mình bằng việc theo dõi cách bạn sử dụng Booking.com thông qua công nghệ theo dõi. Hủy đăng kí bất cứ lúc nào. Tham khảo <span className='underline text-blue-500'>chính sách bảo mật</span> của chúng tôi.
+                </div>
+
+                <div className='text-sm mb-6'>
+                  Đặt phòng của bạn là đặt phòng trực tiếp với BAMBOO HOTEL Vung Tau và bằng việc hoàn tất đặt phòng này, bạn đồng ý với <span className='underline text-blue-500'>điều kiện đặt phòng</span>, <span className='underline text-blue-500'>điều khoản chung</span> và <span className='underline text-blue-500'>chính sách bảo mật</span>.
+                </div>
+
+                <div className='flex justify-end gap-x-2'>
+                  <Button type='default' style={{padding: '12px 24px', boxSizing: 'initial', height: 'fit-content'}}>
+                    <div className='text-md'>Kiểm tra lại đặt phòng</div>
+                  </Button>
                   <Link href='/book/payment-intent'>
-                  <Button type='primary' style={{padding: '12px 24px', boxSizing: 'initial', height: 'fit-content'}}>
+                    <Button type='primary' style={{padding: '12px 24px', boxSizing: 'initial', height: 'fit-content'}}>
                       <div>
                         <IoLockClosed className='text-xl' />
                       </div>
                       <div className='text-md'>Đặt với cam kết thanh toán sau</div>
-                  </Button>
-                </Link>
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           )}
